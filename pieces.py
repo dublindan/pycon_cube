@@ -35,10 +35,9 @@ def show(pieces):
 def make_binary(RAW_PIECES):
     pieces = []
     for piece in RAW_PIECES:
-        val = 0
-        for i, char in enumerate(piece):
-            if char == 'x':
-                val += 2**(64-i)
+        s = ['1' if c == 'x' else '0' for c in piece]
+        s = s + ['0'] * (64 - len(s))
+        val = int(''.join(s), 2)
         pieces.append(val)
     return pieces
 
