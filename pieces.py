@@ -36,6 +36,8 @@ def make_binary(RAW_PIECES):
     pieces = []
     for piece in RAW_PIECES:
         s = ['1' if c == 'x' else '0' for c in piece]
+        # Since the definitions aren't always 64-character long, there's
+        # a need to pad them with zeros.
         s = s + ['0'] * (64 - len(s))
         val = int(''.join(s), 2)
         pieces.append(val)
