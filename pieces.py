@@ -1,5 +1,6 @@
 #!/usr/bin/env python2.6
 
+import operator
 import optparse
 import pprint
 import unittest
@@ -7,21 +8,71 @@ import sys
 from rotate import Rotator
 import re
 
-# Module data in uppercase
 RAW_PIECES = [
-    'x...xx...xx.....',
-    '.xx.xx..............x...........',
-    '.x..xxx..........x..............',
-    '.....xx..........x..xx..........',
-    '.x..xxx.............x...........',
-    'x...xxx.............x...........',
-    'x...xxx.........x...............',
-    '.x..xxx..x......',
-    'xx..x...............x...........',
-    '..x.xxx.............x...........',
-    '.x..xxx..............x..........',
-    '.xx..x..............xx..........',
-    '.x..xxx.x.......'
+    ('x...', '....', '....', '....', # 0
+     'xx..', '....', '....', '....',
+     '.xx.', '....', '....', '....',
+     '....', '....', '....', '....'),
+
+    ('.xx.', '....', '....', '....', # 1
+     'xx..', 'x...', '....', '....',
+     '....', '....', '....', '....',
+     '....', '....', '....', '....'),
+
+    ('.x..', '.x..', '....', '....', # 2
+     'xxx.', '....', '....', '....',
+     '....', '....', '....', '....',
+     '....', '....', '....', '....'),
+
+    ('.xx.', '.x..', '....', '....', # 3
+     'xx..', '....', '....', '....',
+     '....', '....', '....', '....',
+     '....', '....', '....', '....'),
+
+    ('.x..', '....', '....', '....', # 4
+     'xxx.', 'x...', '....', '....',
+     '....', '....', '....', '....',
+     '....', '....', '....', '....'),
+
+    ('xxx.', 'x...', '....', '....', # 5
+     'x...', '....', '....', '....',
+     '....', '....', '....', '....',
+     '....', '....', '....', '....'),
+
+    ('x...', 'x...', '....', '....', # 6
+     'xxx.', '....', '....', '....',
+     '....', '....', '....', '....',
+     '....', '....', '....', '....'),
+
+    ('.x..', '....', '....', '....', # 7
+     'xxx.', '....', '....', '....',
+     '.x..', '....', '....', '....',
+     '....', '....', '....', '....'),
+
+    ('xx..', '....', '....', '....', # 8
+     'x...', 'x...', '....', '....',
+     '....', '....', '....', '....',
+     '....', '....', '....', '....'),
+
+    ('..x.', '....', '....', '....', # 9
+     'xxx.', 'x...', '....', '....',
+     '....', '....', '....', '....',
+     '....', '....', '....', '....'),
+
+    ('xxx.', '.x..', '....', '....', # 10
+     '.x..', '....', '....', '....',
+     '....', '....', '....', '....',
+     '....', '....', '....', '....'),
+
+    ('.x..', '.xx.', '....', '....', # 11
+     'xx..', '....', '....', '....',
+     '....', '....', '....', '....',
+     '....', '....', '....', '....'),
+
+    ('.x..', '....', '....', '....', # 12
+     'xxx.', '....', '....', '....',
+     'x...', '....', '....', '....',
+     '....', '....', '....', '....'),
 ]
 
 def show(pieces):
@@ -32,40 +83,56 @@ def show(pieces):
         print '%d:' % (i+1), piece
 
 
-def visualize_piece(piece):
+def shuffle_list(l, idxs):
+  """Shuffles elements of a list based on index specs.
+  
+  Lengths of l and idx must be the same.
+  """
+  return [l[idxs[i]] for i in range(len(l))]
+
+
+
+def visual_def_to_str(piece_def):
+  idxs = reduce(operator.add, [range(x, x + 16, 4) for x in range(0, 4)])
+  return "".join(reduce(operator.add, shuffle_list(piece_def, idxs)))
+
+
+def parse_notation_2(input):
+  """Reshuffles the '..xx' strings from the visual order to the binary
+  order."""
+  assert len(input) == 16
+  signif_def = visual_def_to_str(input)
+  print signif_def
+  piece_num = make_binary(signif_def)
+  print bin(piece_num)[2:]
+  return piece_num
+
+
+def visualize_piece(piece, spacing=" "):
   """Shows something that humans can interpret spacially."""
   s = ['X ' if x else '. ' for x in piece]
+  out = []
   for i in range(0, 16, 4):
     for j in range(0, 64, 16):
-      print "".join(s[i+j:i+j+4]), " ",
-      # print "%s:%s" % (i+j, i+j+4),
-    print
-  # print s[0:4], s[16:20], s[32:36], s[48:52]
-  # print s[4:8], s[20:24], 
+      out.append("".join(s[i+j:i+j+4] + [spacing]))
+    out.append("\n")
+  return "".join(out)
 
 
-def make_binary(RAW_PIECES):
-    pieces = []
-    for piece in RAW_PIECES:
-        val = 0L
-        for i, char in enumerate(piece):
-            if char == 'x':
-                val += 2**(64-i)
-        pieces.append(val)
-    return pieces
+def make_binary(raw_piece):
+    val = 0L
+    for i, char in enumerate(raw_piece):
+        if char == 'x':
+            val += 2**(64-i)
+    return val
 
-def make_list(pieces):
-    listpieces = []
-    for i, piece in enumerate(pieces):
-        listpieces.append([])
-        str_piece = bin(piece)[2:]
-        if len(str_piece) < 64:
-          str_piece = '0' * (64 - len(str_piece)) + str_piece
-        for char in str_piece:
-            listpieces[i].append(bool(int(char)))
-    return listpieces
+def make_list(piece):
+    str_piece = bin(piece)[2:]
+    str_piece = '0' * (64 - len(str_piece)) + str_piece
+    l = [bool(int(c)) for c in str_piece]
+    return l
 
-PIECES = make_binary(RAW_PIECES)
+PIECES = [parse_notation_2(x) for x in RAW_PIECES]
 collision = lambda x, y: x & y
 
 def total_collision_count(pieces):
@@ -137,12 +204,21 @@ class AllTheWays(object):
 class MakeListUnitTest(unittest.TestCase):
   
   def testMakeList_1(self):
-    pieces = [0L]
-    self.assertEqual([[False] * 64], make_list(pieces))
+    piece = 0L
+    self.assertEqual([False] * 64, make_list(piece))
 
   def testMakeList_2(self):
-    pieces = [1L]
-    self.assertEqual([[False] * 63 + [True]], make_list(pieces))
+    piece = 1L
+    self.assertEqual([False] * 63 + [True], make_list(piece))
+
+  def testMakeList_3(self):
+    piece = 255L
+    self.assertEqual([False] * 56 + [True] * 8, make_list(piece))
+
+  def test_make_binary(self):
+    r =  '.xx.xx..............x...........................................'
+    e = 0b0110110000000000000010000000000000000000000000000000000000000000
+    self.assertEqual(e, make_binary(r))
 
 
 class AllTheWaysUnitTest(unittest.TestCase):
@@ -155,6 +231,50 @@ class AllTheWaysUnitTest(unittest.TestCase):
     piece[2] = 1
     rotations = a.all_rotations(piece)
     self.assertEqual(24, len(set(rotations)))
+
+
+class ShufflingUnitTest(unittest.TestCase):
+
+  def test_1(self):
+    l = ['a', 'b']
+    idxs = [1, 0]
+    self.assertEqual(['b', 'a'], shuffle_list(l, idxs))
+
+  def test_2(self):
+    l = ['a', 'b', 'c', 'd']
+    idxs = [3, 0, 1, 2]
+    self.assertEqual(['d', 'a', 'b', 'c'], shuffle_list(l, idxs))
+
+
+class ParseUnitTest(unittest.TestCase):
+
+  def test_visual_to_str(self):
+    data = RAW_PIECES[0]
+    expected = ('x...xx...xx' + '.' * 53)
+    self.assertEqual(expected, visual_def_to_str(data))
+
+  def test_parse_notation_2(self):
+    p = parse_notation_2(RAW_PIECES[0])
+
+  def test_visualize_8(self):
+    expected = """X X . .  . . . .  . . . .  . . . .  
+X . . .  X . . .  . . . .  . . . .  
+. . . .  . . . .  . . . .  . . . .  
+. . . .  . . . .  . . . .  . . . .  
+"""
+    data = PIECES[8]
+    result = visualize_piece(make_list(data))
+    self.assertEqual(expected, result)
+
+  def test_visualize_11(self):
+    expected = """X X X .  . X . .  . . . .  . . . .  
+. x . .  . . . .  . . . .  . . . .  
+. . . .  . . . .  . . . .  . . . .  
+. . . .  . . . .  . . . .  . . . .  
+"""
+    data = PIECES[11]
+    result = visualize_piece(make_list(data))
+    self.assertEqual(expected, result)
 
 
 def main():
