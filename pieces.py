@@ -115,6 +115,11 @@ class MakeListUnitTest(unittest.TestCase):
     pieces = [1L]
     self.assertEqual([[False] * 63 + [True]], make_list(pieces))
 
+  def test_make_binary(self):
+    r =  ['.xx.xx..............x...........................................']
+    e = [0b0110110000000000000010000000000000000000000000000000000000000000]
+    self.assertEqual(e, make_binary(r))
+
 
 class AllTheWaysUnitTest(unittest.TestCase):
 
