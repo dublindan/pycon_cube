@@ -48,7 +48,7 @@ def make_binary(RAW_PIECES):
     pieces = []
     for piece in RAW_PIECES:
         val = 0L
-        for i, char in enumerate(piece):
+        for i, char in enumerate(piece, start=1):
             if char == 'x':
                 val += 2**(64-i)
         pieces.append(val)
