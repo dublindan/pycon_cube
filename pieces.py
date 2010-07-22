@@ -102,9 +102,9 @@ def parse_notation_2(input):
   order."""
   assert len(input) == 16
   signif_def = visual_def_to_str(input)
-  print signif_def
+  # print signif_def
   piece_num = make_binary(signif_def)
-  print bin(piece_num)[2:]
+  # print bin(piece_num)[2:]
   return piece_num
 
 
@@ -121,7 +121,7 @@ def visualize_piece(piece, spacing=" "):
 
 def make_binary(raw_piece):
     val = 0L
-    for i, char in enumerate(raw_piece):
+    for i, char in enumerate(raw_piece, start=1):
         if char == 'x':
             val += 2**(64-i)
     return val
@@ -267,8 +267,8 @@ X . . .  X . . .  . . . .  . . . .
     self.assertEqual(expected, result)
 
   def test_visualize_11(self):
-    expected = """X X X .  . X . .  . . . .  . . . .  
-. x . .  . . . .  . . . .  . . . .  
+    expected = """. X . .  . X X .  . . . .  . . . .  
+X X . .  . . . .  . . . .  . . . .  
 . . . .  . . . .  . . . .  . . . .  
 . . . .  . . . .  . . . .  . . . .  
 """
