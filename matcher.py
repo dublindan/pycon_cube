@@ -31,25 +31,65 @@ class Matcher(object):
 				return False
 		return True
 
-	"""
 
 		1 2 3 4 5 6
 		
 
-	def merge(self, data):
-		for i in range()
-			Possibility(data[0][i], 
-				    data[1][i], 
-			 	    data[2][i],
-				    data[3][i],
-				    data[4][i],
-				    data[5][i], 
-				    data[6][i], 
-				    data[7][i],
-				    data[8][i],
-				    data[9][i],
-				    data[10][i],
-				    data[11][i], 
-				    data[12][i])
+# 	def merge(self, data):
+# 		for i in range()
+# 			Possibility(data[0][i], 
+# 				    data[1][i], 
+# 			 	    data[2][i],
+# 				    data[3][i],
+# 				    data[4][i],
+# 				    data[5][i], 
+# 				    data[6][i], 
+# 				    data[7][i],
+# 				    data[8][i],
+# 				    data[9][i],
+# 				    data[10][i],
+# 				    data[11][i], 
+# 				    data[12][i])
 			
-	"""
+
+class RecursiveBacktrackingSearch(object):
+    """
+    Probably will implement the following:
+
+    procedure bt(c)
+      if reject(P,c) then return
+      if accept(P,c) then output(P,c)
+      s ← first(P,c)
+      while s ≠ Λ do
+        bt(s)
+        s ← next(P,s)
+
+    Source:
+    http://en.wikipedia.org/wiki/Backtracking#Pseudocode
+    """
+    
+    def Root(self, P):
+        "Return the partial candidate at the root of the search tree"
+        pass
+
+    def Reject(self, P, c):
+        """Return true only if the partial candidate c is not worth
+        completing"""
+        pass
+
+    def Accept(self, P, c):
+        """return true if c is a solution of P, and false otherwise"""
+        pass
+
+    def First(self, P, c):
+        """generate the first extension of candidate c."""
+        pass
+
+    def Next(self, P, c):
+        """generate the next alternative extension of a candidate, after
+        the extension s."""
+        pass
+
+    def Output(self, P, c):
+        """use the solution c of P, as appropriate to the application"""
+        pass
