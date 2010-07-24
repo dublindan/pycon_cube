@@ -116,6 +116,22 @@ MOVING_TEST_DATA = {
 }
 
 class Mover(object):
+    """Moving the pieces.
+
+    Direction naming:
+
+    Y
+
+    ^
+    |
+    |
+    +----> X
+
+    X axis: left/right
+    Y axis: forward/back
+    Z axis: up/down
+
+    """
     # Move up is easy.  We discard the top part (48-63), and fill the
     # bottom with zeros.
     MOVE_UP = range(48, 64) + range(0, 48)
@@ -495,8 +511,6 @@ def main():
   if options.collisions:
     list_pieces = make_list(PIECES)
     print "Total collisions: %d" % total_collision_count(pieces)
-
-
 
 
 if __name__ == '__main__':
