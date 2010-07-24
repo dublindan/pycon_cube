@@ -15,6 +15,18 @@ class Rotator(object):
     self.x_rot_map = None
     self.y_rot_map = None
     self.z_rot_map = None
+    self.functions = {
+        'i': lambda x: x, # Identity
+        'x': self.RotatePieceX,
+        'y': self.RotatePieceY,
+        'z': self.RotatePieceZ,
+    }
+
+  def RotateByDef(self, piece, rotation_def):
+    rotated = piece
+    for rotation_dir in rotation_def:
+      rotated = self.functions[rotation_dir](rotated)
+    return rotated
 
   def Mappings(self, size):
     """Calculates mappings between coordinates and indexes."""
