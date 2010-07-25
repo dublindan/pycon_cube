@@ -1,6 +1,8 @@
-Pycon Ireland 2010 try out on solving puzzle cube
+Pycon Ireland 2010 try out on solving Bedlam's cube
 
-Target data representation for the space search: a list of 13 64-bit
+http://en.wikipedia.org/wiki/Bedlam_cube
+
+Target data representation for the search: a list of 13 lists of 64-bit
 integers:
 
 [
