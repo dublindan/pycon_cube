@@ -1,3 +1,7 @@
+#!/usr/bin/env python2.6
+# coding=utf-8
+
+import pieces
 from possibility import Possibility
 
 class Matcher(object):
@@ -32,26 +36,6 @@ class Matcher(object):
 		return True
 
 
-		1 2 3 4 5 6
-		
-
-# 	def merge(self, data):
-# 		for i in range()
-# 			Possibility(data[0][i], 
-# 				    data[1][i], 
-# 			 	    data[2][i],
-# 				    data[3][i],
-# 				    data[4][i],
-# 				    data[5][i], 
-# 				    data[6][i], 
-# 				    data[7][i],
-# 				    data[8][i],
-# 				    data[9][i],
-# 				    data[10][i],
-# 				    data[11][i], 
-# 				    data[12][i])
-			
-
 class RecursiveBacktrackingSearch(object):
     """
     Probably will implement the following:
@@ -67,29 +51,83 @@ class RecursiveBacktrackingSearch(object):
     Source:
     http://en.wikipedia.org/wiki/Backtracking#Pseudocode
     """
+
+    def __init__(self, data=None, bits=64):
+        self.bits = bits
+        self.data = data
+        if not self.data:
+            self.data = pieces.AllTheWays().MatcherData()
+        self.solutions = []
+        self.length = len(self.data)
+        self.last = [(len(x) - 1) for x in self.data]
     
     def Root(self, P):
         "Return the partial candidate at the root of the search tree"
-        pass
+        return []
 
     def Reject(self, P, c):
         """Return true only if the partial candidate c is not worth
         completing"""
-        pass
+        # print "Reject(%s)" % repr(c)
+        # Check if the indexes aren't out of bounds.
+        if self.BeyondScope(P, c):
+            # Beyond scope, rejecting.
+            return True
+        if len(c) == 0:
+            # Empty solution, not rejecting.
+            return False
+        if len(c) == 1:
+            # One piece, not rejecting.
+            return False
+        n = P[0][c[0]]
+        for el_idx, pos_idx in enumerate(c):
+            n &= P[el_idx][pos_idx]
+        if n > 0L:
+            # print "%s: Overlapping bits, rejecting." % repr(n)
+            return True
+        return False
 
     def Accept(self, P, c):
         """return true if c is a solution of P, and false otherwise"""
-        pass
+        n = 0L
+        for el_idx, pos_idx in enumerate(c):
+            n |= P[el_idx][pos_idx]
+        return n == (2 ** self.bits - 1)
 
     def First(self, P, c):
         """generate the first extension of candidate c."""
-        pass
+        # print "First(%s) ==> %s" % (repr(c), repr(c + [0]))
+        return c + [0]
 
-    def Next(self, P, c):
+    def Next(self, P, s):
         """generate the next alternative extension of a candidate, after
         the extension s."""
-        pass
+        answer = s[:-1] + [s[-1] + 1]
+        # print "Next(%s) ==> %s" % (repr(s), answer)
+        return answer
 
     def Output(self, P, c):
         """use the solution c of P, as appropriate to the application"""
-        pass
+        self.solutions.append(c)
+
+    def RecursiveBacktrackingSearch(self, c, P=None):
+        # print "RecursiveBacktrackingSearch(%s)" % (repr(c))
+        if not P:
+            P = self.data
+        if self.Reject(P, c):
+            return
+        if self.Accept(P, c):
+            self.Output(P, c)
+        s = self.First(P, c)
+        while not self.BeyondScope(P, s):
+            self.RecursiveBacktrackingSearch(s)
+            s = self.Next(P, s)
+
+    def BeyondScope(self, P, s):
+        for i, idx in enumerate(s):
+            if i >= len(P):
+                return True
+            if idx >= len(P[i]):
+                # print "%s >= len(P[%s])" % (idx, i)
+                return True
+        return False
